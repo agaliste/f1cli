@@ -10,7 +10,7 @@ This project is not serious and is just a fun way I found to learn Rust. So the 
 
 ## Building the Project
 
-To build the project, run the following command:
+To build the project, use the following command:
 
 ```bash
 cargo build
