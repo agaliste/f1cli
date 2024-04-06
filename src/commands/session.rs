@@ -5,10 +5,9 @@ use serde::{Serialize, Deserialize};
 use serde_json::Value;
 use prettytable::{Table, row};
 
-use crate::utils::{fetch_session_path, year_validator}; // Adjust path as necessary
+use crate::utils::{fetch_session_path, year_validator};
 
 // ************* TeamRadios struct ************* //
-
 #[derive(Serialize, Deserialize, Debug)]
 struct TeamRadios {
     #[serde(rename = "Captures")]
