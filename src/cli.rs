@@ -13,8 +13,8 @@ pub enum Commands {
         #[clap(subcommand)]
         command: super::commands::SessionCommands,
     },
-    Driver {
-        #[clap(subcommand)]
-        command: super::commands::DriverCommands,
-    },
+    // Driver {
+    //     #[clap(subcommand)]
+    //     command: super::commands::DriverCommands,
+    // },
 }
