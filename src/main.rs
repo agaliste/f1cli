@@ -10,7 +10,6 @@ fn main() {
 
     match cli.command {
         cli::Commands::Session { command } => handle_session_command(command),
-        _ => println!("Other commands to be handled"),
     }
     
 }
