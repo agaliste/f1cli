@@ -21,21 +21,21 @@ pub fn fetch_session_path(year: i32, gp: &str, session: &str) -> Result<String, 
     let meetings: &Vec<Value> = data["Meetings"].as_array().ok_or("Meetings not found")?;
     let gp_lower: String = gp.to_lowercase();
     let session_lower: String = session.to_lowercase();
-    
-    let matching_gp = meetings.iter().find(|m| {
+
+    let matching_gp: Option<&Value> = meetings.iter().find(|m: &&Value| {
         m["Name"].as_str().unwrap_or_default().to_lowercase().contains(&gp_lower)
     });
 
-    let matching_gp = matching_gp.ok_or("No GP matches found")?;
+    let matching_gp: &Value = matching_gp.ok_or("No GP matches found")?;
 
     // Find the session
     let sessions: &Vec<Value> = matching_gp["Sessions"].as_array().ok_or("Sessions not found")?;
 
-    let matching_session = sessions.iter().find(|s| {
+    let matching_session: Option<&Value> = sessions.iter().find(|s: &&Value| {
         s["Name"].as_str().unwrap_or_default().to_lowercase() == session_lower
     });
 
-    let matching_session = matching_session.ok_or("No sessions matches found")?;
+    let matching_session: &Value = matching_session.ok_or("No sessions matches found")?;
 
     // Retrieve the session path
     let session_path: &str = matching_session["Path"].as_str().ok_or("Session path not found")?;
