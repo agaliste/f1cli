@@ -4,6 +4,7 @@ use reqwest::blocking as reqwest;
 use serde::{Serialize, Deserialize};
 use serde_json::{Number, Value};
 use prettytable::{Table, row};
+use std::error::Error;
 
 use crate::utils::{fetch_session_path, year_validator};
 
@@ -226,15 +227,15 @@ pub fn handle_session_command(command: SessionCommands) {
 }
 
 fn fetch_session_data(args: SessionArgs, key_frame_path: &str) {
-    let session_path_result = fetch_session_path(args.year, &args.gp, &args.session);
+    let session_path_result: Result<String, Box<dyn Error>> = fetch_session_path(args.year, &args.gp, &args.session);
 
     if let Err(e) = session_path_result {
         eprintln!("Error fetching session path: {}", e);
         return;
     }
 
-    let full_url = format!("https://livetiming.formula1.com/static/{}{}", session_path_result.unwrap(), key_frame_path);
-    let response = reqwest::get(&full_url).and_then(|res| res.text());
+    let full_url: String = format!("https://livetiming.formula1.com/static/{}{}", session_path_result.unwrap(), key_frame_path);
+    let response: Result<String, ::reqwest::Error> = reqwest::get(&full_url).and_then(|res: reqwest::Response| res.text());
 
     match response {
         Ok(json_text) => {
@@ -267,7 +268,7 @@ fn print_table(json: &Value, base_url: &str, key_frame_path: &str) {
 }
 
 fn print_table_for_drivers_subcommand(json: &Value) {
-    let mut table = Table::new();
+    let mut table: Table = Table::new();
 
     let drivers: HashMap<String, Driver> = serde_json::from_value(json.clone())
     .expect("Error parsing JSON");
@@ -293,14 +294,14 @@ fn print_json_for_radios_subcommand(json: &Value, base_url: String) {
 }
 
 fn print_table_for_radios_subcommand(json: &Value, base_url: String) {
-    let mut table = Table::new();
+    let mut table: Table = Table::new();
                     
     table.set_titles(row!["#", "Audio Link", "UTC Timestamp"]);
 
     let mut team_radios: TeamRadios = serde_json::from_value(json.clone()).expect("Error parsing JSON");
 
     for team_radio in &mut team_radios.captures {
-        let audio_url = format!("{}/{}", base_url.rsplitn(2, '/').last().unwrap(), team_radio.path);
+        let audio_url: String = format!("{}/{}", base_url.rsplitn(2, '/').last().unwrap(), team_radio.path);
         table.add_row(row![team_radio.racing_number, audio_url, team_radio.utc]);
     }
 
@@ -308,11 +309,11 @@ fn print_table_for_radios_subcommand(json: &Value, base_url: String) {
 }
 
 fn print_table_for_info_subcommand(json: &Value) {
-    let mut table = Table::new();
+    let mut table: Table = Table::new();
 
     let info: Info = serde_json::from_value(json.clone()).expect("Error parsing JSON");
                 
-    let meeting = info.meeting;
+    let meeting: Meeting = info.meeting;
 
     table.set_titles(row!["", format!("{} - {}", meeting.official_name, meeting.name)]);
 
@@ -326,7 +327,7 @@ fn print_table_for_info_subcommand(json: &Value) {
 }
 
 fn print_table_for_status_subcommand(json: &Value) {
-    let mut table = Table::new();
+    let mut table: Table = Table::new();
     table.set_titles(row!["TimeStamp", "Status", "Status Type"]);
 
     let status: Status = serde_json::from_value(json.clone()).expect("Error parsing JSON");
@@ -335,7 +336,7 @@ fn print_table_for_status_subcommand(json: &Value) {
         let (status_type, status_value) = match &status_series.track_status {
             Some(track_status) => ("Track", track_status.as_str()),
             None => {
-                let session_status = status_series.session_status.as_deref().unwrap_or("");
+                let session_status: &str = status_series.session_status.as_deref().unwrap_or("");
                 ("Session", session_status)
             }
         };
