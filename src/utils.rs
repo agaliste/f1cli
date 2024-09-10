@@ -22,30 +22,25 @@ pub fn fetch_session_path(year: i32, gp: &str, session: &str) -> Result<String, 
     let gp_lower: String = gp.to_lowercase();
     let session_lower: String = session.to_lowercase();
 
-    let matching_gps: Vec<&Value> = meetings.iter()
-        .filter(|m: &&Value| m["Name"].as_str().unwrap_or_default().to_lowercase().contains(&gp_lower))
-        .collect();
+    // Using find for efficiency, but checking for containment
+    let matching_gp = meetings.iter().find(|m| {
+        m["Name"].as_str().unwrap_or_default().to_lowercase().contains(&gp_lower)
+    });
 
-    if matching_gps.is_empty() {
-        return Err("No GP matches found".into());
-    } else if matching_gps.len() > 1 {
-        return Err("Multiple GP matches found".into());
-    }
+    let matching_gp = matching_gp.ok_or("No GP matches found")?;
 
-    // Assuming a single match for GP, now find the session
-    let sessions: &Vec<Value> = matching_gps[0]["Sessions"].as_array().ok_or("Sessions not found")?;
-    let matching_sessions: Vec<&Value> = sessions.iter()
-        .filter(|s: &&Value| s["Name"].as_str().unwrap_or_default().to_lowercase().contains(&session_lower))
-        .collect();
+    // Find the session
+    let sessions: &Vec<Value> = matching_gp["Sessions"].as_array().ok_or("Sessions not found")?;
 
-    if matching_sessions.is_empty() {
-        return Err("No sessions matches found".into());
-    } else if matching_sessions.len() > 1 {
-        return Err("Multiple Sessions matches found".into());
-    }
+    // Using find for efficiency
+    let matching_session = sessions.iter().find(|s| {
+        s["Name"].as_str().unwrap_or_default().to_lowercase() == session_lower
+    });
 
-    // Assuming a single match for session, retrieve the session path
-    let session_path: &str = matching_sessions[0]["Path"].as_str().ok_or("Session path not found")?;
+    let matching_session = matching_session.ok_or("No sessions matches found")?;
+
+    // Retrieve the session path
+    let session_path: &str = matching_session["Path"].as_str().ok_or("Session path not found")?;
 
     Ok(session_path.to_string())
 }
