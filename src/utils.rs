@@ -21,8 +21,7 @@ pub fn fetch_session_path(year: i32, gp: &str, session: &str) -> Result<String, 
     let meetings: &Vec<Value> = data["Meetings"].as_array().ok_or("Meetings not found")?;
     let gp_lower: String = gp.to_lowercase();
     let session_lower: String = session.to_lowercase();
-
-    // Using find for efficiency, but checking for containment
+    
     let matching_gp = meetings.iter().find(|m| {
         m["Name"].as_str().unwrap_or_default().to_lowercase().contains(&gp_lower)
     });
@@ -32,7 +31,6 @@ pub fn fetch_session_path(year: i32, gp: &str, session: &str) -> Result<String, 
     // Find the session
     let sessions: &Vec<Value> = matching_gp["Sessions"].as_array().ok_or("Sessions not found")?;
 
-    // Using find for efficiency
     let matching_session = sessions.iter().find(|s| {
         s["Name"].as_str().unwrap_or_default().to_lowercase() == session_lower
     });
