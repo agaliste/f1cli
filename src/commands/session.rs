@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use clap::{Subcommand, Args};
 use reqwest::blocking as reqwest;
 use serde::{Serialize, Deserialize};
-use serde_json::Value;
+use serde_json::{Number, Value};
 use prettytable::{Table, row};
 
 use crate::utils::{fetch_session_path, year_validator};
@@ -37,7 +37,7 @@ struct ArchiveStatus {
 #[derive(Serialize, Deserialize, Debug)]
 struct Circuit {
     #[serde(rename = "Key")]
-    key: String,
+    key: Number,
 
     #[serde(rename = "ShortName")]
     short_name: String,
@@ -49,7 +49,7 @@ struct Country {
     code: String,
 
     #[serde(rename = "Key")]
-    key: String,
+    key: Number,
 
     #[serde(rename = "Name")]
     name: String,
@@ -58,7 +58,7 @@ struct Country {
 #[derive(Serialize, Deserialize, Debug)]
 struct Meeting {
     #[serde(rename = "Key")]
-    key: String,
+    key: Number,
 
     #[serde(rename = "Location")]
     location: String,
@@ -103,7 +103,7 @@ struct Info {
     gmt_offset: String,
 
     #[serde(rename = "Key")]
-    key: String,
+    key: Number,
 }
 
 // ************* Status struct ************* //
